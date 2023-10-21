@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         // Define environment variables for Docker Hub credentials
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials-id')
-        DOCKER_IMAGE_NAME = 'your-dockerhub-username/your-image-name'
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub')
+        DOCKER_IMAGE_NAME = 'rajatherise/phpnew'
     }
 
     stages {
