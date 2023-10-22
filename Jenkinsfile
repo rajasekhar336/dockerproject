@@ -1,44 +1,31 @@
 pipeline {
-    agent any
-
-    environment {
-        // Define environment variables for Docker Hub credentials
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub')
-        DOCKER_IMAGE_NAME = 'rajatherise/phpnew'
+  agent any
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '5'))
+  }
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+  }
+  stages {
+    stage('Build') {
+      steps {
+        sh 'docker build -t rajatherise/phpnew .'
+      }
     }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                // Checkout the Git repository
-                checkout scm
-            }
-        }
-
-        stage('Build and Push to Docker Hub') {
-            steps {
-                // Build and tag the Docker image
-                script {
-                    def dockerImage = docker.build(env.DOCKER_IMAGE_NAME)
-                }
-
-                // Log in to Docker Hub
-                script {
-                    withDockerRegistry([credentialsId: env.DOCKER_HUB_CREDENTIALS]) {
-                        // Push the Docker image to Docker Hub
-                        dockerImage.push()
-                    }
-                }
-            }
-        }
+    stage('Login') {
+      steps {
+        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+      }
     }
-
-    post {
-        success {
-            echo 'Pipeline succeeded! The Docker image has been built and pushed to Docker Hub.'
-        }
-        failure {
-            echo 'Pipeline failed.'
-        }
+    stage('Push') {
+      steps {
+        sh 'docker push rajatherise/phpnew'
+      }
     }
+  }
+  post {
+    always {
+      sh 'docker logout'
+    }
+  }
 }
