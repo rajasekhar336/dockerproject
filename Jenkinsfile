@@ -28,4 +28,11 @@ pipeline {
       sh 'docker logout'
     }
   }
+  stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Deploy to Kubernetes
+                    sh 'kubectl apply -f deployment.yaml'
+                }
+            }
 }
